@@ -82,9 +82,6 @@ namespace SkillSync.Areas.Identity.Pages.Account
             return Page();
         }
 
-        public void OnGet()
-        {
-
-        }
+        
     }
 }

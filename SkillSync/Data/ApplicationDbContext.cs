@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using SkillSync.Models;
 
 namespace SkillSync.Data
@@ -19,6 +20,7 @@ namespace SkillSync.Data
         public DbSet<Recommendation> Recommendations { get; set; }
         public DbSet<Reminder> Reminders { get; set; }
         public DbSet<Report> Reports { get; set; }
+        public DbSet<IdentityRole> Roles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
