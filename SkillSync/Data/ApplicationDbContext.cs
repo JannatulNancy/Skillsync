@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using SkillSync.Models;
 
 namespace SkillSync.Data
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext<LearnerProfile, IdentityRole, string>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -46,11 +47,12 @@ namespace SkillSync.Data
                 .HasForeignKey(p => p.LearningListId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // Progress ↔ Skill — FIXED
             modelBuilder.Entity<Progress>()
                 .HasOne(p => p.Skill)
                 .WithMany(s => s.ProgressRecords)
                 .HasForeignKey(p => p.SkillId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict); // ✅ Solves cascade conflict
 
             // Recommendation
             modelBuilder.Entity<Recommendation>()
