@@ -1,13 +1,15 @@
-﻿using System.Composition;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
+using SkillSync.Models;
+using System;
+using System.Collections.Generic;
 
 namespace SkillSync.Models
 {
     public class LearnerProfile : IdentityUser
     {
-        // Remove: public string Email, Password
         public string Name { get; set; }
         public string ProfileDetails { get; set; }
+
         public DateTime RegistrationDate { get; set; }
         public DateTime LastLogin { get; set; }
 
@@ -17,5 +19,4 @@ namespace SkillSync.Models
         public ICollection<Report> Reports { get; set; }
         public ICollection<LearningPath> LearningPaths { get; set; }
     }
-
 }

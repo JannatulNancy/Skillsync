@@ -1,0 +1,106 @@
+﻿@page
+@model SkillSync.Pages.LearnerProgress.LearnerProgressboardModel
+@{
+    ViewData["Title"] = "Your Learning Dashboard";
+}
+
+<h2 class="mb-4">@ViewData["Title"]</h2>
+
+<!-- 🎯 Progress Section -->
+<h3 class="mb-3">📚 Learning Progress</h3>
+
+@if (Model.ProgressRecords != null && Model.ProgressRecords.Any())
+{
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Skill</th>
+                <th>Completion</th>
+                <th>Status</th>
+                <th>Last Update</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var progress in Model.ProgressRecords)
+            {
+                var status = progress.Completion == 100 ? "✅ Completed" : "⌛ In Progress";
+                var barColor = progress.Completion == 100 ? "bg-success" : "bg-warning";
+
+                <tr>
+                    <td>@progress.Skill.Name</td>
+                    <td>
+                        <div class="progress">
+                            <div class="progress-bar @barColor" role="progressbar"
+                                 style="width:@progress.Completion%"
+                                 aria-valuenow="@progress.Completion" aria-valuemin="0" aria-valuemax="100">
+                                @progress.Completion%
+                            </div>
+                        </div>
+                    </td>
+                    <td>@status</td>
+                    <td>@progress.LastUpdate.ToString("MMM dd, yyyy")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="alert alert-secondary">No progress found. Start learning and watch this section come alive! 🌱</div>
+}
+
+<!-- 🔔 Reminders Section -->
+<h3 class="mt-5 mb-3">🔔 Reminders</h3>
+
+@if (Model.Reminders != null && Model.Reminders.Any())
+{
+    <table class="table table-bordered">
+        <thead class="table-light">
+            <tr>
+                <th>Message</th>
+                <th>Due Date</th>
+                <th>Priority</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var reminder in Model.Reminders)
+            {
+                var priorityClass = reminder.Priority switch
+                {
+                    "High" => "text-danger fw-bold",
+                    "Medium" => "text-warning",
+                    _ => "text-muted"
+                };
+
+                <tr>
+                    <td>
+                        @reminder.Message
+
+                        @if (reminder.Skill != null)
+                        {
+                            <span class="badge bg-secondary ms-2">Skill: @reminder.Skill.Name</span>
+                        }
+
+                        @if (reminder.LearningPath != null)
+                        {
+                            <span class="badge bg-info ms-2">Path: @reminder.LearningPath.Title</span>
+                        }
+                    </td>
+
+                    <td>@reminder.DueDate.ToString("MMM dd, yyyy")</td>
+                    <td class="@priorityClass">@reminder.Priority</td>
+                    <td>
+                        <form method="post" asp-page="/LearnerProgress/Reminder" asp-page-handler="Dismiss" asp-route-id="@reminder.ReminderId">
+                            <button class="btn btn-sm btn-outline-danger">Dismiss</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="alert alert-info">No reminders at the moment. Stay tuned for helpful nudges! 📬</div>
+}

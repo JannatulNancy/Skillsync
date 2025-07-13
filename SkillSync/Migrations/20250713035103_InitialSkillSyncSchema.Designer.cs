@@ -3,17 +3,20 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SkillSync.Data;
 
 #nullable disable
 
-namespace SkillSync.Data.Migrations
+namespace SkillSync.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250713035103_InitialSkillSyncSchema")]
+    partial class InitialSkillSyncSchema
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -159,35 +162,6 @@ namespace SkillSync.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("SkillSync.Models.Admin", b =>
-                {
-                    b.Property<int>("AdminId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AdminId"));
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Password")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Username")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("AdminId");
-
-                    b.ToTable("Admins");
-                });
-
             modelBuilder.Entity("SkillSync.Models.LearnerProfile", b =>
                 {
                     b.Property<string>("Id")
@@ -306,9 +280,6 @@ namespace SkillSync.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("LearningPathId"));
 
-                    b.Property<int?>("AdminId")
-                        .HasColumnType("int");
-
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -325,8 +296,6 @@ namespace SkillSync.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("LearningPathId");
-
-                    b.HasIndex("AdminId");
 
                     b.HasIndex("LearnerId");
 
@@ -404,17 +373,34 @@ namespace SkillSync.Data.Migrations
                     b.Property<DateTime>("DateSent")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime>("DueDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("LearnerId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<int?>("LearningPathId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Message")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Priority")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("SkillId")
+                        .HasColumnType("int");
+
                     b.HasKey("ReminderId");
 
                     b.HasIndex("LearnerId");
+
+                    b.HasIndex("LearningPathId");
+
+                    b.HasIndex("SkillId");
 
                     b.ToTable("Reminders");
                 });
@@ -457,9 +443,6 @@ namespace SkillSync.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SkillId"));
 
-                    b.Property<int?>("AdminId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Category")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -477,8 +460,6 @@ namespace SkillSync.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("SkillId");
-
-                    b.HasIndex("AdminId");
 
                     b.ToTable("Skills");
                 });
@@ -555,17 +536,10 @@ namespace SkillSync.Data.Migrations
 
             modelBuilder.Entity("SkillSync.Models.LearningPath", b =>
                 {
-                    b.HasOne("SkillSync.Models.Admin", "Admin")
-                        .WithMany("LearningPaths")
-                        .HasForeignKey("AdminId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("SkillSync.Models.LearnerProfile", "Learner")
                         .WithMany("LearningPaths")
                         .HasForeignKey("LearnerId")
                         .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Admin");
 
                     b.Navigation("Learner");
                 });
@@ -616,7 +590,21 @@ namespace SkillSync.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("SkillSync.Models.LearningPath", "LearningPath")
+                        .WithMany("Reminders")
+                        .HasForeignKey("LearningPathId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("SkillSync.Models.Skill", "Skill")
+                        .WithMany("Reminders")
+                        .HasForeignKey("SkillId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.Navigation("Learner");
+
+                    b.Navigation("LearningPath");
+
+                    b.Navigation("Skill");
                 });
 
             modelBuilder.Entity("SkillSync.Models.Report", b =>
@@ -628,23 +616,6 @@ namespace SkillSync.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Learner");
-                });
-
-            modelBuilder.Entity("SkillSync.Models.Skill", b =>
-                {
-                    b.HasOne("SkillSync.Models.Admin", "Admin")
-                        .WithMany("Skills")
-                        .HasForeignKey("AdminId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("Admin");
-                });
-
-            modelBuilder.Entity("SkillSync.Models.Admin", b =>
-                {
-                    b.Navigation("LearningPaths");
-
-                    b.Navigation("Skills");
                 });
 
             modelBuilder.Entity("SkillSync.Models.LearnerProfile", b =>
@@ -665,6 +636,11 @@ namespace SkillSync.Data.Migrations
                     b.Navigation("ProgressRecords");
                 });
 
+            modelBuilder.Entity("SkillSync.Models.LearningPath", b =>
+                {
+                    b.Navigation("Reminders");
+                });
+
             modelBuilder.Entity("SkillSync.Models.Skill", b =>
                 {
                     b.Navigation("LearningLists");
@@ -672,6 +648,8 @@ namespace SkillSync.Data.Migrations
                     b.Navigation("ProgressRecords");
 
                     b.Navigation("Recommendations");
+
+                    b.Navigation("Reminders");
                 });
 #pragma warning restore 612, 618
         }

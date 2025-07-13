@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using SkillSync.Models;
+using SkillSync.Models;
 
 namespace SkillSync.Data
 {
@@ -13,7 +14,6 @@ namespace SkillSync.Data
         }
 
         public DbSet<LearnerProfile> Learners { get; set; }
-        public DbSet<Admin> Admins { get; set; }
         public DbSet<Skill> Skills { get; set; }
         public DbSet<LearningPath> LearningPaths { get; set; }
         public DbSet<LearningList> LearningLists { get; set; }
@@ -47,59 +47,61 @@ namespace SkillSync.Data
                 .HasForeignKey(p => p.LearningListId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Progress ↔ Skill — FIXED
+            // Progress ↔ Skill
             modelBuilder.Entity<Progress>()
                 .HasOne(p => p.Skill)
                 .WithMany(s => s.ProgressRecords)
                 .HasForeignKey(p => p.SkillId)
-                .OnDelete(DeleteBehavior.Restrict); // ✅ Solves cascade conflict
+                .OnDelete(DeleteBehavior.Restrict); // Prevents cascade conflict
 
-            // Recommendation
+            // Recommendation ↔ Learner
             modelBuilder.Entity<Recommendation>()
                 .HasOne(r => r.Learner)
                 .WithMany(l => l.Recommendations)
                 .HasForeignKey(r => r.LearnerId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // Recommendation ↔ Skill
             modelBuilder.Entity<Recommendation>()
                 .HasOne(r => r.Skill)
                 .WithMany(s => s.Recommendations)
                 .HasForeignKey(r => r.SkillId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Reminder
+            // Reminder ↔ Learner
             modelBuilder.Entity<Reminder>()
                 .HasOne(r => r.Learner)
                 .WithMany(l => l.Reminders)
                 .HasForeignKey(r => r.LearnerId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Report
+            // Reminder ↔ Skill
+            modelBuilder.Entity<Reminder>()
+                .HasOne(r => r.Skill)
+                .WithMany(s => s.Reminders)
+                .HasForeignKey(r => r.SkillId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // Reminder ↔ LearningPath
+            modelBuilder.Entity<Reminder>()
+                .HasOne(r => r.LearningPath)
+                .WithMany(lp => lp.Reminders)
+                .HasForeignKey(r => r.LearningPathId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // Report ↔ Learner
             modelBuilder.Entity<Report>()
                 .HasOne(r => r.Learner)
                 .WithMany(l => l.Reports)
                 .HasForeignKey(r => r.LearnerId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // LearningPath (Admin or Learner created)
+            // LearningPath ↔ Learner
             modelBuilder.Entity<LearningPath>()
                 .HasOne(lp => lp.Learner)
                 .WithMany(l => l.LearningPaths)
                 .HasForeignKey(lp => lp.LearnerId)
                 .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<LearningPath>()
-                .HasOne(lp => lp.Admin)
-                .WithMany(a => a.LearningPaths)
-                .HasForeignKey(lp => lp.AdminId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            // Skill creator (Admin)
-            modelBuilder.Entity<Skill>()
-                .HasOne(s => s.Admin)
-                .WithMany(a => a.Skills)
-                .HasForeignKey(s => s.AdminId)
-                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }

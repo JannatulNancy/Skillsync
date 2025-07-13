@@ -1,10 +1,13 @@
-﻿namespace SkillSync.Models
+﻿using System;
+
+namespace SkillSync.Models
 {
     public class Recommendation
     {
         public int RecommendationId { get; set; }
-        public string LearnerId { get; set; }
+
         public int SkillId { get; set; }
+        public string LearnerId { get; set; } // ✅ Added for proper FK mapping
         public string Reason { get; set; }
         public DateTime Date { get; set; }
 
