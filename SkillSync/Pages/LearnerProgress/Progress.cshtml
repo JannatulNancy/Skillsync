@@ -1,0 +1,49 @@
+﻿@page
+@model SkillSync.Pages.LearnerProgress.ProgressModel
+@{
+    ViewData["Title"] = "My Learning Progress";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+@if (Model.ProgressRecords != null && Model.ProgressRecords.Any())
+{
+    <table class="table table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>Skill</th>
+                <th>Completion</th>
+                <th>Status</th>
+                <th>Last Updated</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var record in Model.ProgressRecords)
+            {
+                var status = record.Completion == 100 ? "✅ Completed" : "⌛ In Progress";
+                var barColor = record.Completion == 100 ? "bg-success" : "bg-warning";
+
+                <tr>
+                    <td>@record.Skill.Name</td>
+                    <td>
+                        <div class="progress">
+                            <div class="progress-bar @barColor" role="progressbar"
+                                 style="width:@record.Completion%"
+                                 aria-valuenow="@record.Completion" aria-valuemin="0" aria-valuemax="100">
+                                @record.Completion%
+                            </div>
+                        </div>
+                    </td>
+                    <td>@status</td>
+                    <td>@record.LastUpdate.ToString("MMM dd, yyyy")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="alert alert-info">
+        No progress records found. Time to dive into some skills and start learning! 🌱
+    </div>
+}
