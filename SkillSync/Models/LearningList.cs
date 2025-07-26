@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace SkillSync.Models
 {
@@ -14,5 +15,4 @@ namespace SkillSync.Models
         public Skill Skill { get; set; }
         public ICollection<Progress> ProgressRecords { get; set; }
     }
-
 }

@@ -1,0 +1,64 @@
+﻿@page
+@model SkillSync.Pages.LearnerProgress.ReminderModel
+@{
+    ViewData["Title"] = "My Reminders";
+}
+
+<h2 class="mb-4">@ViewData["Title"]</h2>
+
+@if (Model.Reminders != null && Model.Reminders.Any())
+{
+    <table class="table table-hover table-bordered">
+        <thead class="table-light">
+            <tr>
+                <th>Message</th>
+                <th>Due Date</th>
+                <th>Priority</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var reminder in Model.Reminders)
+            {
+                var priorityClass = reminder.Priority switch
+                {
+                    "High" => "text-danger fw-bold",
+                    "Medium" => "text-warning",
+                    _ => "text-muted"
+                };
+
+                <tr>
+                    <td>
+                        @reminder.Message
+
+                        @* Skill association *@
+                        @if (reminder.Skill != null)
+                        {
+                            <span class="badge bg-secondary ms-2">Skill: @reminder.Skill.Name</span>
+                        }
+
+                        @* Learning Path association *@
+                        @if (reminder.LearningPath != null)
+                        {
+                            <span class="badge bg-info ms-2">Path: @reminder.LearningPath.Title</span>
+                        }
+                    </td>
+
+                    <td>@reminder.DueDate.ToString("MMM dd, yyyy")</td>
+                    <td class="@priorityClass">@reminder.Priority</td>
+                    <td>
+                        <form method="post" asp-page-handler="Dismiss" asp-route-id="@reminder.ReminderId" onsubmit="return confirm('Dismiss this reminder?');">
+                            <button class="btn btn-sm btn-outline-danger">Dismiss</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="alert alert-info">
+        You don’t have any active reminders yet. Add one or keep learning—I'll help you stay on track! 🧠⏰
+    </div>
+}
