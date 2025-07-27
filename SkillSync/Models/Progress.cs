@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace SkillSync.Models
+﻿namespace SkillSync.Models
 {
     public class Progress
     {
