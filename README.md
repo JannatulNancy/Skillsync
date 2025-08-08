@@ -43,7 +43,7 @@ SkillSync is a web-based platform designed to help learners track and optimize t
 ## 📦 How to Run
 
 1. **Clone the r
-git clone https://github.com/your-username/skillsync.git
+git clone https://github.com/JannatulNancy/skillsync.git
 
 3. **Apply migrations**  
 
